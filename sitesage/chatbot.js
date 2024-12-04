@@ -28,6 +28,7 @@ class ChatbotWidget {
     await this.initializeFuse();
     this.injectHTML();
     this.addEventListeners();
+    await this.checkAICapabilities();
   }
 
   async loadLibrary(url) {
@@ -39,6 +40,42 @@ class ChatbotWidget {
       script.onerror = (error) => reject(error);
       document.head.appendChild(script);
     });
+  }
+
+  async checkAICapabilities() {
+    let aiCapable = false;
+    let errorUserMessage = "";
+    if (!self.ai || !self.ai.languageModel) {
+      console.error("Prompt API not supported in this browser.");
+      errorUserMessage = "Prompt API is not supported in this browser. Please enable support for the Prompt API in your browser.";
+    } else {
+      let capabilities = await self.ai.languageModel.capabilities();
+      let availability = capabilities.available;
+
+      if (availability != 'readily') {
+        errorUserMessage = "Your browser supports the Prompt API, but it is not readily available. Please enable it. Current availability status:" + availability;
+      } else {
+        aiCapable = true;
+      }
+    }
+    if (!aiCapable) {
+      const chatbotContainer = document.getElementById("chatbot-container");
+      const botMsg = document.createElement("div");
+      botMsg.textContent = errorUserMessage;
+      botMsg.style.cssText =
+        "align-self: flex-start; background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 10px; max-width: 70%;";
+      chatbotContainer.appendChild(botMsg);
+      chatbotContainer.scrollTop = chatbotContainer.scrollHeight;
+
+      // Disable the send button and user message input
+      const chatbotSend = document.getElementById("chatbot-send");
+      chatbotSend.disabled = true;
+      chatbotSend.style.backgroundColor = "#ced4da";
+
+      const chatbotInput = document.getElementById("chatbot-input");
+      chatbotInput.disabled = true;
+      chatbotInput.style.backgroundColor = "#ced4da";
+    }
   }
 
   logToConsole(message) {
