@@ -53,7 +53,7 @@ class ChatbotWidget {
       let availability = capabilities.available;
 
       if (availability != 'readily') {
-        errorUserMessage = "Your browser supports the Prompt API, but it is not readily available. Please enable it. Current availability status:" + availability;
+        errorUserMessage = "Your browser supports the Prompt API, but it is not readily available. Please enable it. Current availability status: " + availability;
       } else {
         aiCapable = true;
       }
